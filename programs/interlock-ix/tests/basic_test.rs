@@ -66,6 +66,15 @@ fn test_age_check() {
         check_age(1000, 950, 30).unwrap_err(),
         GuardError::StalePrice
     );
+
+    // Future timestamp within permissible 5s drift (now 1000, publish 1003) -> pass
+    assert!(check_age(1000, 1003, 30).is_ok());
+
+    // Excessive future timestamp (now 1000, publish 1010, drift 10s > 5s) -> fail
+    assert_eq!(
+        check_age(1000, 1010, 30).unwrap_err(),
+        GuardError::StalePrice
+    );
 }
 
 #[test]

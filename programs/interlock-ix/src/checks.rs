@@ -1,9 +1,17 @@
 use crate::errors::GuardError;
 
+/// Maximum permissible future clock drift in seconds (5s).
+pub const MAX_FUTURE_CLOCK_DRIFT_SECS: u64 = 5;
+
 /// Verify oracle price staleness.
 pub fn check_age(now: u64, publish_time: u64, max_age_secs: u64) -> Result<(), GuardError> {
-    if now < publish_time {
-        // Clock skew or future timestamp
+    if publish_time > now {
+        let drift = publish_time
+            .checked_sub(now)
+            .ok_or(GuardError::MathOverflow)?;
+        if drift > MAX_FUTURE_CLOCK_DRIFT_SECS {
+            return Err(GuardError::StalePrice);
+        }
         return Ok(());
     }
     let age = now

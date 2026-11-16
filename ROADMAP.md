@@ -188,3 +188,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #1: enforce strict price update ordering before guard in TransactionComposer and add unit test | P2-06, R-08 |
 | 2026-11-16 | wagmiiii | Fix #2: configure dedicated Base58 program ID in Anchor.toml and interlock-ix with format validation test | P2-01 |
 | 2026-11-16 | wagmiiii | Fix #3: add pre-flight SOL balance checks (>= 1.5 SOL) to deploy_mainnet.sh and deploy_devnet.sh | P0-10, P3-04, P3-05 |
+| 2026-11-16 | wagmiiii | Fix #4: bound future oracle timestamps to max 5s clock drift to prevent permanent staleness bypass | P2-02, R-05 |

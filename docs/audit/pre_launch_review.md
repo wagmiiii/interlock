@@ -45,7 +45,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   solana balance "$KEYPAIR_PATH" --url "${CLUSTER:-devnet}" | awk '{if ($1 < 1.5) {print "Error: Insufficient SOL for deployment"; exit 1}}'
   ```
 
-### 4. Future Timestamp Bypass in Oracle Staleness Check
+### 4. [RESOLVED] Future Timestamp Bypass in Oracle Staleness Check
+- **Status:** Resolved in `programs/interlock-ix/src/checks.rs` with `MAX_FUTURE_CLOCK_DRIFT_SECS = 5` and unit tests in `programs/interlock-ix/tests/basic_test.rs`.
 - **File & Line:** [programs/interlock-ix/src/checks.rs:5-8](file:///home/dell/interlock/programs/interlock-ix/src/checks.rs#L5-L8)
 - **Why it matters:** `if now < publish_time { return Ok(()); }` unconditionally passes when `publish_time` is in the future. A malicious or glitched publisher emitting a timestamp in the far future permanently circumvents the staleness guard, remaining "fresh" forever until that future timestamp passes.
 - **Efficient One-Line Fix:**
