@@ -27,7 +27,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   if self.has_guard || self.has_venue_trade { return Err(TxCompositionError::InvalidInstructionOrder); }
   ```
 
-### 2. Program ID Configured as System Program Dummy (`11111111111111111111111111111111`)
+### 2. [RESOLVED] Program ID Configured as System Program Dummy (`11111111111111111111111111111111`)
+- **Status:** Resolved in `Anchor.toml` and `programs/interlock-ix/src/lib.rs` (`PROGRAM_ID_STR = "A2qRStzDzSJw8HnyJN2dudHHLuqeybZGh3YoM7XPFneW"`).
 - **File & Line:** [Anchor.toml:8, 11, 14](file:///home/dell/interlock/Anchor.toml#L8-L14)
 - **Why it matters:** Deploying or interacting with Anchor using the default placeholder targets the Solana System Program. Attempting to deploy or sign transactions against this ID will immediately fail deserialization or attempt invalid operations against system accounts.
 - **Efficient One-Line Fix:**

@@ -15,9 +15,20 @@
 
 use interlock_ix::{
     check_age, check_confidence, check_deviation, execute_sanity_checks, GuardError,
-    OracleCheckInputs, OracleGuardParams, ReferenceKind, VerificationLevel,
+    OracleCheckInputs, OracleGuardParams, ReferenceKind, VerificationLevel, PROGRAM_ID_STR,
 };
 use proptest::prelude::*;
+
+#[test]
+fn test_program_id_format() {
+    assert_eq!(PROGRAM_ID_STR.len(), 44);
+    assert_ne!(PROGRAM_ID_STR, "11111111111111111111111111111111");
+    // Verify all characters are in standard Base58 alphabet
+    let b58_chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    for c in PROGRAM_ID_STR.chars() {
+        assert!(b58_chars.contains(c));
+    }
+}
 
 #[test]
 fn test_deviation_pass_within_bounds() {

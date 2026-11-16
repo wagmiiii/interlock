@@ -5,13 +5,13 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-interlock_ix = "11111111111111111111111111111111"
+interlock_ix = "A2qRStzDzSJw8HnyJN2dudHHLuqeybZGh3YoM7XPFneW"
 
 [programs.devnet]
-interlock_ix = "11111111111111111111111111111111"
+interlock_ix = "A2qRStzDzSJw8HnyJN2dudHHLuqeybZGh3YoM7XPFneW"
 
 [programs.mainnet]
-interlock_ix = "11111111111111111111111111111111"
+interlock_ix = "A2qRStzDzSJw8HnyJN2dudHHLuqeybZGh3YoM7XPFneW"
 
 [registry]
 url = "https://api.apr.dev"

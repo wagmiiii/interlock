@@ -6,6 +6,9 @@ pub use checks::{check_age, check_confidence, check_deviation};
 pub use errors::GuardError;
 pub use reference::{ReferenceKind, ReferencePrice};
 
+/// Canonical program ID for interlock-ix on Solana networks.
+pub const PROGRAM_ID_STR: &str = "A2qRStzDzSJw8HnyJN2dudHHLuqeybZGh3YoM7XPFneW";
+
 /// Verification level of a Pyth price update account.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerificationLevel {
