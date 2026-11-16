@@ -35,10 +35,22 @@ impl<'a> CoverageQuery<'a> {
             }
         }
 
+        let (effective_start, effective_end) = if from_ts == 0 && to_ts == i64::MAX {
+            if let (Some(&first), Some(&last)) = (timestamps.first(), timestamps.last()) {
+                (first, last)
+            } else {
+                (0, 0)
+            }
+        } else {
+            (from_ts, to_ts)
+        };
+
         let total_slots = timestamps.len();
-        let expected_samples = ((to_ts - from_ts).max(1) / 60) as usize; // assuming 60s target
-        let coverage_pct = if expected_samples > 0 {
-            Decimal::from(total_slots) / Decimal::from(expected_samples) * Decimal::from(100)
+        let duration = effective_end.saturating_sub(effective_start).max(1);
+        let expected_samples = ((duration / 60) as usize).max(1);
+        let coverage_pct = if total_slots > 0 {
+            (Decimal::from(total_slots) / Decimal::from(expected_samples) * Decimal::from(100))
+                .min(Decimal::from(100))
         } else {
             Decimal::ZERO
         };
@@ -46,8 +58,8 @@ impl<'a> CoverageQuery<'a> {
         Ok(CoverageReport {
             market: market.clone(),
             total_slots,
-            start_ts: from_ts,
-            end_ts: to_ts,
+            start_ts: effective_start,
+            end_ts: effective_end,
             coverage_pct,
             gaps_over_five_minutes: gaps,
         })

@@ -116,7 +116,11 @@ pub async fn run(args: SnapshotArgs) -> Result<()> {
 
             let conn = Connection::open(&db_path)?;
             let query = CoverageQuery::new(&conn);
-            let report = query.query_coverage(&MarketId(market), 0, i64::MAX)?;
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs() as i64;
+            let from_ts = now.saturating_sub(86400 * 30);
+            let report = query.query_coverage(&MarketId(market), from_ts, now)?;
 
             println!("Total recorded slots: {}", report.total_slots);
             println!("Coverage percentage:  {}%", report.coverage_pct);

@@ -112,7 +112,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   while max_samples == 0 || written < max_samples { /* write snapshot */ tokio::time::sleep(std::time::Duration::from_secs(interval_secs)).await; written += 1; }
   ```
 
-### 11. Snapshot Coverage Report Passes `i64::MAX`, Always Outputting 0.00%
+### 11. [RESOLVED] Snapshot Coverage Report Passes `i64::MAX`, Always Outputting 0.00%
+- **Status:** Resolved in `crates/interlock-store/src/coverage.rs` and `crates/interlock-cli/src/cmd/snapshot.rs` with bounded rolling 30-day window query and effective timestamp boundary detection.
 - **File & Line:** [crates/interlock-cli/src/cmd/snapshot.rs:98](file:///home/dell/interlock/crates/interlock-cli/src/cmd/snapshot.rs#L98) and [crates/interlock-store/src/coverage.rs:39-41](file:///home/dell/interlock/crates/interlock-store/src/coverage.rs#L39-L41)
 - **Why it matters:** Passing `to_ts = i64::MAX` calculates `expected_samples` across 292 billion years. Dividing total slots by this astronomical number results in `0.00%` coverage, falsely triggering refusal rules.
 - **Efficient One-Line Fix:**

@@ -67,4 +67,13 @@ fn test_coverage_and_gap_detection() {
     assert_eq!(report.gaps_over_five_minutes.len(), 1);
     assert_eq!(report.gaps_over_five_minutes[0], (1120, 1720));
     assert!(report.coverage_pct > Decimal::ZERO);
+
+    // Unbounded window (0, i64::MAX) must calculate coverage based on recorded bounds, not 0.00%
+    let unbounded_report = query
+        .query_coverage(&MarketId::from("SOL-PERP"), 0, i64::MAX)
+        .unwrap();
+    assert_eq!(unbounded_report.total_slots, 5);
+    assert_eq!(unbounded_report.start_ts, 1000);
+    assert_eq!(unbounded_report.end_ts, 1780);
+    assert!(unbounded_report.coverage_pct > Decimal::ZERO);
 }
