@@ -27,6 +27,9 @@ pub fn check_age(now: u64, publish_time: u64, max_age_secs: u64) -> Result<(), G
 ///
 /// Formula: fail if `conf * 10_000 > max_conf_bps * p_oracle`
 pub fn check_confidence(conf: u64, price: u64, max_conf_bps: u16) -> Result<(), GuardError> {
+    if price == 0 {
+        return Err(GuardError::ConfidenceTooWide);
+    }
     let conf_scaled = (conf as u128)
         .checked_mul(10_000)
         .ok_or(GuardError::MathOverflow)?;

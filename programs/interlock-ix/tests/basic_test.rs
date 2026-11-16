@@ -54,6 +54,12 @@ fn test_confidence_check() {
         check_confidence(600, 100_000, 50).unwrap_err(),
         GuardError::ConfidenceTooWide
     );
+
+    // Price 0, Conf 0 -> must fail with ConfidenceTooWide
+    assert_eq!(
+        check_confidence(0, 0, 50).unwrap_err(),
+        GuardError::ConfidenceTooWide
+    );
 }
 
 #[test]
@@ -143,7 +149,13 @@ fn test_execute_sanity_checks_all_error_paths() {
     let err_ref_zero = execute_sanity_checks(&params, &inputs_zero);
     assert_eq!(err_ref_zero.unwrap_err(), GuardError::ReferenceInvalid);
 
-    // 8. Deviation exceeded
+    // 8. Oracle invalid (zero price)
+    let mut inputs_oracle_zero = base_inputs.clone();
+    inputs_oracle_zero.price = 0;
+    let err_oracle_zero = execute_sanity_checks(&params, &inputs_oracle_zero);
+    assert_eq!(err_oracle_zero.unwrap_err(), GuardError::ConfidenceTooWide);
+
+    // 9. Deviation exceeded
     let mut inputs_dev = base_inputs.clone();
     inputs_dev.ref_price = 160_000_000; // ~666 bps > 100 bps
     let err_dev = execute_sanity_checks(&params, &inputs_dev);

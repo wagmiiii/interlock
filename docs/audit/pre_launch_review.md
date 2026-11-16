@@ -63,12 +63,13 @@ Each item details the exact **file and line**, **why it matters in production**,
   let (norm_oracle, norm_ref) = normalize_exponents(inputs.price as u128, inputs.expo, effective_ref_price, effective_ref_expo)?;
   ```
 
-### 6. Zero Oracle Price Evades Confidence Interval Guard
+### 6. [RESOLVED] Zero Oracle Price Evades Confidence Interval Guard
+- **Status:** Resolved in `programs/interlock-ix/src/checks.rs` rejecting `price == 0` with `Err(GuardError::ConfidenceTooWide)`.
 - **File & Line:** [programs/interlock-ix/src/checks.rs:21-32](file:///home/dell/interlock/programs/interlock-ix/src/checks.rs#L21-L32)
 - **Why it matters:** If `price == 0` and `conf == 0`, `conf_scaled = 0` and `threshold = 0`. Since `0 > 0` is false, `check_confidence` returns `Ok(())` on a zero oracle price instead of rejecting it as corrupted.
 - **Efficient One-Line Fix:**
   ```rust
-  if price == 0 { return Err(GuardError::ReferenceInvalid); }
+  if price == 0 { return Err(GuardError::ConfidenceTooWide); }
   ```
 
 ---
