@@ -218,11 +218,25 @@ fn test_impact_model_incorporation() {
     // Size = 2000
     // Open = 2000 * 0.0006 = 1.20
     // Close = 2000 * 0.0006 = 1.20
-    // Impact = 2000 * 0.0005 = 1.00
+    // Impact = 2000 * (5.002 / 10000) = 1.0004
     // Borrow = 0
-    // Total = 3.40
-    assert_eq!(breakdown.impact_usd, Some(dec!(1.00)));
-    assert_eq!(breakdown.total_usd, dec!(3.40));
+    // Total = 3.4004
+    assert_eq!(breakdown.impact_usd, Some(dec!(1.0004)));
+    assert_eq!(breakdown.total_usd, dec!(3.4004));
+
+    // Institutional size ($1M):
+    // base = 5 bps, slope = 1 bps/M -> total 6 bps
+    // 1,000,000 * 0.0006 = 600.00 USD
+    let input_large = PositionInput {
+        market: MarketId::from("SOL-PERP"),
+        side: Side::Long,
+        collateral_usd: dec!(250_000),
+        leverage: dec!(4),
+        horizon_hours: dec!(0),
+        collateral_asset: AssetId::from("USDC"),
+    };
+    let breakdown_large = calculate_cost(&input_large, &venue, dec!(100), 1).unwrap();
+    assert_eq!(breakdown_large.impact_usd, Some(dec!(600.00)));
 }
 
 #[test]

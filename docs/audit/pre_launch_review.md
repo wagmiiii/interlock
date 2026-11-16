@@ -130,7 +130,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   let realized_costs = load_realized_costs_from_db(&args.db_path, &args.market, args.hours)?;
   ```
 
-### 13. Price Impact Slope Ignored for Institutional/Large Orders
+### 13. [RESOLVED] Price Impact Slope Ignored for Institutional/Large Orders
+- **Status:** Resolved in `crates/interlock-core/src/cost.rs` incorporating `slope_bps_per_million` and verified with unit tests for both standard and institutional orders in `crates/interlock-core/tests/cost_tests.rs`.
 - **File & Line:** [crates/interlock-core/src/cost.rs:48-51](file:///home/dell/interlock/crates/interlock-core/src/cost.rs#L48-L51)
 - **Why it matters:** `ImpactModel.slope_bps_per_million` is never incorporated into `impact_usd`. Large orders ($500k+) will display zero order-size price impact, causing traders to incur massive unprojected slippage.
 - **Efficient One-Line Fix:**

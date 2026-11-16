@@ -46,7 +46,8 @@ pub fn calculate_cost(
     let close_fee_usd = size_usd * (venue.close_fee_bps / bps_divisor);
 
     let impact_usd = venue.impact.as_ref().map(|impact| {
-        let impact_bps = impact.base_impact_bps;
+        let size_in_millions = size_usd / dec!(1_000_000);
+        let impact_bps = impact.base_impact_bps + (size_in_millions * impact.slope_bps_per_million);
         size_usd * (impact_bps / bps_divisor)
     });
 
