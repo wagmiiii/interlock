@@ -85,7 +85,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   let scale = Decimal::from(10).checked_powi(record.expo.unsigned_abs() as i64).ok_or(PythError::ParseError("Expo overflow".into()))?;
   ```
 
-### 8. `try_into().unwrap()` in Binary Account Decoder
+### 8. [RESOLVED] `try_into().unwrap()` in Binary Account Decoder
+- **Status:** Resolved in `crates/interlock-chain/src/venue.rs` replacing `.unwrap()` with `.map_err(|_| DecoderError::TruncatedData(...))` with tests in `crates/interlock-chain/tests/decoder_tests.rs`.
 - **File & Line:** [crates/interlock-chain/src/venue.rs:56-60](file:///home/dell/interlock/crates/interlock-chain/src/venue.rs#L56-L60)
 - **Why it matters:** Violates the workspace zero-unwrap policy. If slice offsets change during future protocol layout updates or maintenance, `.unwrap()` panics in production instead of returning a clean `DecoderError`.
 - **Efficient One-Line Fix:**

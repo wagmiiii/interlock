@@ -53,11 +53,31 @@ impl VenueDecoder {
             return Err(DecoderError::TruncatedData(raw_data.len(), 32));
         }
 
-        let open_bps = u32::from_le_bytes(raw_data[8..12].try_into().unwrap());
-        let close_bps = u32::from_le_bytes(raw_data[12..16].try_into().unwrap());
-        let max_lev = u32::from_le_bytes(raw_data[16..20].try_into().unwrap());
-        let mm_bps = u32::from_le_bytes(raw_data[20..24].try_into().unwrap());
-        let borrow_scaled = u64::from_le_bytes(raw_data[24..32].try_into().unwrap());
+        let open_bps = u32::from_le_bytes(
+            raw_data[8..12]
+                .try_into()
+                .map_err(|_| DecoderError::TruncatedData(raw_data.len(), 32))?,
+        );
+        let close_bps = u32::from_le_bytes(
+            raw_data[12..16]
+                .try_into()
+                .map_err(|_| DecoderError::TruncatedData(raw_data.len(), 32))?,
+        );
+        let max_lev = u32::from_le_bytes(
+            raw_data[16..20]
+                .try_into()
+                .map_err(|_| DecoderError::TruncatedData(raw_data.len(), 32))?,
+        );
+        let mm_bps = u32::from_le_bytes(
+            raw_data[20..24]
+                .try_into()
+                .map_err(|_| DecoderError::TruncatedData(raw_data.len(), 32))?,
+        );
+        let borrow_scaled = u64::from_le_bytes(
+            raw_data[24..32]
+                .try_into()
+                .map_err(|_| DecoderError::TruncatedData(raw_data.len(), 32))?,
+        );
 
         let _ = market;
         Ok(VenueParams {

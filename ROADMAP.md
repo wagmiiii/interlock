@@ -192,3 +192,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #5: normalize price exponents before deviation comparison in interlock-ix | P2-04, R-08 |
 | 2026-11-16 | wagmiiii | Fix #6: reject zero oracle prices in confidence check to prevent silent corruption pass | P2-03, R-05 |
 | 2026-11-16 | wagmiiii | Fix #7: safe bounded exponent parsing in Pyth decoder avoiding integer overflow panics | P0-04, P1-03 |
+| 2026-11-16 | wagmiiii | Fix #8: eliminate all unwrap calls in venue binary decoder, returning typed DecoderErrors | P0-04, P1-04 |
