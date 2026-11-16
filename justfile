@@ -24,4 +24,6 @@ idl:
 # Export demo scenario data to precomputed JSON
 export-demo-data:
     mkdir -p web/public/data
-    @echo "Exporting demo scenario data to web/public/data/"
+    cp scenarios/a_normal.json web/public/data/
+    cp scenarios/b_spike_synthetic.json web/public/data/
+    @echo "Exported demo scenario data to web/public/data/"

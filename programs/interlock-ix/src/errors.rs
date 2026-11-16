@@ -16,4 +16,6 @@ pub enum GuardError {
     DeviationExceeded,
     #[error("Arithmetic overflow during cross-multiplication or scaling")]
     MathOverflow,
+    #[error("Invalid owner for price or reference account")]
+    WrongAccountOwner,
 }

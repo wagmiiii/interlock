@@ -1,0 +1,11 @@
+{
+  "scenario_id": "a_normal",
+  "name": "Normal Market Conditions (Guarded Pass)",
+  "synthetic": false,
+  "market": "SOL-PERP",
+  "oracle_price": "150.05",
+  "reference_price": "150.00",
+  "deviation_bps": 3,
+  "max_deviation_bps": 50,
+  "expected_guard_result": "PASS"
+}

@@ -6,6 +6,11 @@ license.workspace = true
 
 [dependencies]
 interlock-core = { workspace = true }
+interlock-ix = { path = "../../programs/interlock-ix" }
 rust_decimal = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+rust_decimal_macros = { workspace = true }
+serde_json = { workspace = true }

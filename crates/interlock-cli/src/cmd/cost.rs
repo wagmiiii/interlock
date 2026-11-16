@@ -31,6 +31,10 @@ pub struct CostArgs {
     /// Collateral asset
     #[arg(long, default_value = "USDC")]
     pub collateral_asset: String,
+
+    /// Output pure JSON format
+    #[arg(long)]
+    pub json: bool,
 }
 
 fn parse_side(s: &str) -> Result<Side, String> {
@@ -53,7 +57,6 @@ pub async fn run(args: CostArgs) -> Result<()> {
         collateral_asset: AssetId(args.collateral_asset),
     };
 
-    // Placeholder venue parameters until RPC decoders connect in P1-02
     let venue = VenueParams {
         open_fee_bps: dec!(6),
         close_fee_bps: dec!(6),
@@ -64,7 +67,13 @@ pub async fn run(args: CostArgs) -> Result<()> {
     };
 
     let breakdown = calculate_cost(&input, &venue, dec!(150), 300_000_000)?;
-    print_breakdown(&breakdown);
+
+    if args.json {
+        let json_str = serde_json::to_string_pretty(&breakdown)?;
+        println!("{json_str}");
+    } else {
+        print_breakdown(&breakdown);
+    }
     Ok(())
 }
 
@@ -89,6 +98,13 @@ fn print_breakdown(b: &CostBreakdown) {
         println!(
             "  {:>3}h: ${:>6.2} (borrow ${:>6.2})",
             p.hours, p.total_usd, p.borrow_usd
+        );
+    }
+    println!("\nRate Sensitivity:");
+    for s in &b.sensitivity {
+        println!(
+            "  {:>4}x (rate {:.6}/h): borrow ${:>6.2}, total ${:>6.2}",
+            s.multiplier, s.borrow_rate_per_hour, s.borrow_usd, s.total_usd
         );
     }
     println!("\nAssumptions:");

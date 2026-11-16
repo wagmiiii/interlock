@@ -19,6 +19,8 @@ authors = ["Ademola <ademola2993k@gmail.com>"]
 interlock-core = { path = "crates/interlock-core" }
 interlock-chain = { path = "crates/interlock-chain" }
 interlock-store = { path = "crates/interlock-store" }
+interlock-ix = { path = "programs/interlock-ix" }
+
 rust_decimal = { version = "1.36", features = ["serde-with-str"] }
 rust_decimal_macros = "1.36"
 serde = { version = "1.0", features = ["derive"] }

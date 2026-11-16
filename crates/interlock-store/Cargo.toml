@@ -9,3 +9,6 @@ interlock-core = { workspace = true }
 rusqlite = { workspace = true }
 rust_decimal = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+rust_decimal_macros = { workspace = true }

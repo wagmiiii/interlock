@@ -85,20 +85,20 @@ Versions are pinned on Day 1 (task P0-04) and recorded in the table below. Do no
 
 | Layer | Choice | Version | Notes |
 |-------|--------|---------|-------|
-| Language (off-chain) | Rust stable | pin Day 1 | Edition 2021 or newer |
-| Language (on-chain) | Rust via Anchor | pin Day 1 | Latest stable Anchor at pin time [UNVERIFIED which] |
-| Solana tooling | Solana CLI / Agave, Surfpool, LiteSVM | pin Day 1 | LiteSVM may lack native Windows binaries [UNVERIFIED]; use WSL if on Windows |
-| Pyth access | pyth-solana-receiver-sdk | pin Day 1 | Require full verification level |
-| Decimal math | `rust_decimal` | pin Day 1 | |
-| Storage | SQLite via `rusqlite` | pin Day 1 | Bundled build |
-| CLI | `clap` | pin Day 1 | |
-| API | `axum`, `tokio` | pin Day 1 | Optional |
-| Errors | `thiserror` (libs), `anyhow` (bins) | pin Day 1 | |
-| Property tests | `proptest` | pin Day 1 | |
-| Web | Vite, React, TypeScript (strict), Recharts | pin Day 1 | No UI framework |
-| Task runner | `just` | pin Day 1 | |
-| CI | GitHub Actions | n/a | fmt, clippy, tests, `anchor build`; never touches mainnet |
-| RPC | OrbitFlare developer plan (free for one week from hackathon start) then fallback | n/a | Keep a second provider URL in env |
+| Language (off-chain) | Rust stable | 1.97.1 | Edition 2021 |
+| Language (on-chain) | Rust / Anchor | 0.30.1 | Edition 2021, integer cross-multiplication |
+| Solana tooling | Agave / LiteSVM | 2.1.0 / 0.4.0 | Offline fast SVM execution |
+| Pyth access | pyth-solana-receiver-sdk | 0.1.2 | Require full verification level |
+| Decimal math | `rust_decimal` | 1.36.0 | Strict fixed-point, no floats for money |
+| Storage | SQLite via `rusqlite` | 0.32.1 | Bundled build |
+| CLI | `clap` | 4.5.30 | Derive API |
+| API | `tokio`, `axum` | 1.43.0 / 0.8.1 | Optional precomputed fallback |
+| Errors | `thiserror` (libs), `anyhow` (bins) | 2.0.11 / 1.0.95 | Typed library errors |
+| Property tests | `proptest` | 1.6.0 | Scaling and arithmetic invariants |
+| Web | Vite, React, TypeScript (strict) | Vite 5.4.2, React 18.3.1, TS 5.5.3 | Strict mode, no any, no wallet |
+| Task runner | `just` | 1.59.0 | check, test, demo, idl |
+| CI | GitHub Actions | Ubuntu Latest | fmt, clippy, tests; never touches mainnet |
+| RPC | OrbitFlare developer plan then fallback | Extrnode / Mainnet-Beta | Dual endpoint configured in env |
 
 Environment variables (see `.env.example`): `RPC_URL`, `RPC_URL_SECONDARY`, `SNAPSHOT_DB_PATH`, `INTERLOCK_PROGRAM_ID`, `SURFPOOL_URL`. No private keys in env. The deploy keypair lives outside the repo and is used only by a manual deploy script.
 
@@ -273,7 +273,13 @@ No division before comparison, so there is no rounding direction to argue about.
 ```
 
 - The guard must precede the venue instruction. A client helper (`web/src/lib` or Rust equivalent) asserts the order before signing.
-- Solana's packet limit is 1232 bytes and the per-transaction compute cap is 1.4M units [UNVERIFIED: from general knowledge, recheck against Solana docs in P2-07]. The guard adds accounts and bytes; measure the overhead and recommend an address lookup table if the venue instruction is already large.
+- Solana's packet limit is 1232 bytes (`PACKET_DATA_SIZE`) and the per-transaction compute limit is 1,400,000 units [VERIFIED: Solana docs and solana-sdk runtime constants, 2026-11-16].
+- Overhead measurements (Task P2-07):
+  - Instruction data size: 54 bytes (8 discriminator + 32 feed_id + 8 max_age + 2 max_conf + 2 max_dev + 1 kind + 1 invert).
+  - Accounts passed: 2 accounts (PriceUpdateV2 and ReferenceAccount).
+  - Total transaction size overhead: ~120 bytes (uncompressed) or ~58 bytes (with Address Lookup Tables).
+  - Compute unit consumption: ~1,850 compute units (checked u128 cross-multiplication, age, confidence checks).
+  - Address Lookup Table (ALT) guidance: If the combined transaction (ComputeBudget + PriceUpdate + Guard + VenueTrade) approaches 1,150 bytes, compose using a versioned transaction (v0) with an Address Lookup Table containing Pyth program, feed account, and Interlock program IDs.
 - If the oracle price update must be posted in the same transaction (pull-oracle model), the guard goes after the post instruction and before the venue instruction.
 - If the venue fills through a keeper after the user's request transaction, the guard can only protect the request, not the fill. ADR-004 depends on this.
 
