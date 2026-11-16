@@ -103,7 +103,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   let resp = self.client.get_multiple_accounts_with_commitment(pubkeys, CommitmentConfig::confirmed()).await?;
   ```
 
-### 10. Indefinite Snapshot Logger Flag (`--max-samples 0`) Immediately Exits
+### 10. [RESOLVED] Indefinite Snapshot Logger Flag (`--max-samples 0`) Immediately Exits
+- **Status:** Resolved in `crates/interlock-cli/src/cmd/snapshot.rs` with persistent sampling loop supporting graceful Ctrl+C shutdown.
 - **File & Line:** [crates/interlock-cli/src/cmd/snapshot.rs:61](file:///home/dell/interlock/crates/interlock-cli/src/cmd/snapshot.rs#L61)
 - **Why it matters:** The CLI help states `--max-samples 0` runs indefinitely, but line 61 forces `samples_to_write = 1`, writes a single entry, and immediately shuts down. Unattended logging daemons cannot run continuously.
 - **Efficient One-Line Fix:**

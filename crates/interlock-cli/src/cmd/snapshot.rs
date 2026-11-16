@@ -58,12 +58,20 @@ pub async fn run(args: SnapshotArgs) -> Result<()> {
             )?;
 
             let mut writer = SnapshotWriter::new(&mut conn);
-            let samples_to_write = if max_samples == 0 { 1 } else { max_samples };
+            let mut count = 0;
 
-            for i in 0..samples_to_write {
+            loop {
+                if max_samples > 0 && count >= max_samples {
+                    break;
+                }
+
+                let current_ts = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)?
+                    .as_secs() as i64;
+
                 let snap = MarketSnapshot {
-                    slot: 300_000_000 + i as u64,
-                    unix_ts: now + (i as i64 * interval_secs as i64),
+                    slot: 300_000_000 + count as u64,
+                    unix_ts: current_ts,
                     market: MarketId::from("SOL-PERP"),
                     mark_price: dec!(150.05),
                     oracle_price: dec!(150.00),
@@ -80,8 +88,21 @@ pub async fn run(args: SnapshotArgs) -> Result<()> {
                     rpc_id: "orbitflare-primary".to_string(),
                 };
                 writer.insert_snapshot(&snap)?;
+                count += 1;
+
+                if max_samples > 0 && count >= max_samples {
+                    break;
+                }
+
+                tokio::select! {
+                    _ = tokio::time::sleep(tokio::time::Duration::from_secs(interval_secs)) => {},
+                    _ = tokio::signal::ctrl_c() => {
+                        println!("\nReceived shutdown signal. Exiting snapshot logger cleanly.");
+                        break;
+                    }
+                }
             }
-            println!("Recorded {samples_to_write} snapshot(s) cleanly without partial rows.");
+            println!("Recorded {count} snapshot(s) cleanly without partial rows.");
         }
         SnapshotAction::Report { market, db_path } => {
             println!("=== Interlock Snapshot Coverage Report ===");
