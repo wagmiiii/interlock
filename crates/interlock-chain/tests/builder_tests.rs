@@ -62,6 +62,19 @@ fn test_composer_refuses_trade_without_guard() {
 }
 
 #[test]
+fn test_composer_refuses_price_update_after_guard() {
+    let mut composer = TransactionComposer::new();
+    composer.add_guard(dummy_params()).unwrap();
+
+    // Attempting to add oracle price update after guard must fail
+    let res = composer.add_oracle_price_update();
+    assert_eq!(
+        res.unwrap_err(),
+        TxCompositionError::InvalidInstructionOrder
+    );
+}
+
+#[test]
 fn test_error_diagnostic_mapping() {
     let msg = TransactionComposer::map_error_to_diagnostic(GuardError::DeviationExceeded);
     assert!(msg.contains("deviates excessively"));

@@ -37,7 +37,7 @@ impl TransactionComposer {
 
     /// Add a compute budget instruction.
     pub fn add_compute_budget(&mut self) -> Result<&mut Self, TxCompositionError> {
-        if self.has_venue_trade {
+        if self.has_guard || self.has_venue_trade {
             return Err(TxCompositionError::InvalidInstructionOrder);
         }
         self.instructions.push(InstructionType::ComputeBudget);
@@ -46,7 +46,7 @@ impl TransactionComposer {
 
     /// Add an oracle price update instruction (e.g. Pyth pull update).
     pub fn add_oracle_price_update(&mut self) -> Result<&mut Self, TxCompositionError> {
-        if self.has_venue_trade {
+        if self.has_guard || self.has_venue_trade {
             return Err(TxCompositionError::InvalidInstructionOrder);
         }
         self.instructions.push(InstructionType::OraclePriceUpdate);
@@ -58,8 +58,8 @@ impl TransactionComposer {
         &mut self,
         params: OracleGuardParams,
     ) -> Result<&mut Self, TxCompositionError> {
-        if self.has_venue_trade {
-            // Guard must NEVER come after the trade instruction
+        if self.has_guard || self.has_venue_trade {
+            // Guard must NEVER come after the trade instruction, nor be duplicated
             return Err(TxCompositionError::InvalidInstructionOrder);
         }
         self.instructions

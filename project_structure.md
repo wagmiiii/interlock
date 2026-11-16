@@ -67,6 +67,7 @@ interlock/
 │   └── deploy_mainnet.sh          # manual, requires explicit human approval
 ├── data/                          # local SQLite files (gitignored)
 └── docs/
+    ├── audit/                     # senior engineering & security pre-launch review
     ├── verification/              # one short note per resolved [UNVERIFIED] item
     └── demo/                      # video script, pitch one-pager, screenshots
 ```

@@ -1,6 +1,6 @@
 # Interlock: Roadmap
 
-**Last updated:** 2026-11-16 (UTC) by wagmiiii: completed end-to-end decoders, tx composer, golden tests, guard tests, demo scenarios, API routes, web app, and submission pitch/script docs.
+**Last updated:** 2026-11-16 (UTC) by wagmiiii: resolved Audit Fix #1 (TxComposer strict oracle update ordering) [P2-06, R-08].
 **Hackathon deadline:** 2026-12-05 (timezone [UNVERIFIED]). **Internal submission target:** 2026-12-04.
 **Status legend:** `[ ]` not started | `[~]` in progress | `[x]` done | `[!]` blocked (reason in the Blocked section)
 **Priority legend:** P0 must ship | P1 should ship | P2 stretch (excluded from the 100% readiness definition)
@@ -184,3 +184,5 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Scaffold complete directory tree, crates, and workspace manifests | P0-03 |
 | 2026-11-16 | wagmiiii | Implement pre-commit secret scan and complete core unit/proptest suite | P0-12, P1-01 |
 | 2026-11-16 | wagmiiii | Implement decoders, tx composer, golden tests, guard program, demo scenarios, API routes, web app, and submission pitch/script docs | P0-02, P0-04, P0-06..P0-09, P1-02..P1-10, P2-01..P2-08, P3-01..P3-03, P3-07, P4-01..P4-06, P5-01..P5-03, P5-05, R-01..R-08 |
+| 2026-11-16 | wagmiiii | Conduct senior engineering pre-launch security & stability review; compile ranked audit report in docs/audit/pre_launch_review.md | P5-05, R-08 |
+| 2026-11-16 | wagmiiii | Fix #1: enforce strict price update ordering before guard in TransactionComposer and add unit test | P2-06, R-08 |
