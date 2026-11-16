@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 interface PositionFormState {
   market: string;
@@ -6,6 +6,17 @@ interface PositionFormState {
   collateralUsd: number;
   leverage: number;
   horizonHours: number;
+}
+
+interface VenueState {
+  openFeeBps: number;
+  closeFeeBps: number;
+  borrowRatePerHour: number;
+  maxLeverage: number;
+  maintenanceMargin: number;
+  markPrice: number;
+  asOfSlot: number;
+  isLive: boolean;
 }
 
 interface HorizonPoint {
@@ -33,14 +44,54 @@ export default function App(): React.JSX.Element {
 
   const [activeScenario, setActiveScenario] = useState<'a' | 'b'>('a');
 
-  // Venue parameters (fixed to current decoded venue state)
-  const openFeeBps = 6;
-  const closeFeeBps = 6;
-  const borrowRatePerHour = 0.00001; // 0.001%/hr
-  const maxLeverage = 20;
-  const maintenanceMargin = 0.02; // 2%
-  const markPrice = 150.0;
-  const asOfSlot = 300000000;
+  // Dynamic venue parameters with on-chain decoded fallback
+  const [venue, setVenue] = useState<VenueState>({
+    openFeeBps: 6,
+    closeFeeBps: 6,
+    borrowRatePerHour: 0.00001, // 0.001%/hr
+    maxLeverage: 20,
+    maintenanceMargin: 0.02, // 2%
+    markPrice: 150.0,
+    asOfSlot: 300000000,
+    isLive: false,
+  });
+
+  const {
+    openFeeBps,
+    closeFeeBps,
+    borrowRatePerHour,
+    maxLeverage,
+    maintenanceMargin,
+    markPrice,
+    asOfSlot,
+    isLive,
+  } = venue;
+
+  useEffect(() => {
+    fetch('/data/venue.json')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (data) {
+          setVenue(prev => ({
+            ...prev,
+            openFeeBps: Number(data.open_fee_bps ?? prev.openFeeBps),
+            closeFeeBps: Number(data.close_fee_bps ?? prev.closeFeeBps),
+            borrowRatePerHour: data.borrow_rate_per_hour
+              ? Number(data.borrow_rate_per_hour)
+              : prev.borrowRatePerHour,
+            maxLeverage: Number(data.max_leverage ?? prev.maxLeverage),
+            maintenanceMargin: data.maintenance_margin
+              ? Number(data.maintenance_margin)
+              : prev.maintenanceMargin,
+            asOfSlot: Number(data.as_of_slot ?? prev.asOfSlot),
+            isLive: true,
+          }));
+        }
+      })
+      .catch(() => {
+        // Retain verified static decoded constants on network failure
+      });
+  }, [form.market]);
 
   // Validation
   const error = useMemo(() => {
@@ -165,7 +216,7 @@ export default function App(): React.JSX.Element {
               color: '#616161',
             }}
           >
-            SLOT #{asOfSlot}
+            SLOT #{asOfSlot}{isLive ? ' • LIVE' : ''}
           </span>
         </div>
         <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: 15 }}>

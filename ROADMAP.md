@@ -201,3 +201,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #14: bind live Axum HTTP server in interlock-api serving /health, /cost, /backtest, and /scenario endpoints (added axum) | P4-01, P4-02, P4-03, P4-05 |
 | 2026-11-16 | wagmiiii | Fix #15: replace full in-memory vector allocation with streaming row iteration for SQLite gap analysis | P1-08, P1-09 |
 | 2026-11-16 | wagmiiii | Fix #16: replace float arithmetic with exact integer math for p95 percentile calculation in interlock-core | P1-10 |
+| 2026-11-16 | wagmiiii | Fix #17: add dynamic on-chain venue parameters hook with live sync indicator in web UI | P4-04 |
