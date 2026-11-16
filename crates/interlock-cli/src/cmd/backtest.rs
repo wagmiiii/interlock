@@ -1,6 +1,9 @@
+use std::path::Path;
+
 use anyhow::Result;
 use clap::Args;
 use interlock_core::{compute_backtest_summary, MarketId};
+use interlock_store::CoverageQuery;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 
@@ -27,24 +30,77 @@ pub async fn run(args: BacktestArgs) -> Result<()> {
     println!("Database:        {}", args.db_path);
     println!("Reported coverage: {}%", args.coverage_pct);
 
-    // Simulated historical realized costs across rolling windows
-    let realized_costs = vec![
-        dec!(0.30),
-        dec!(0.32),
-        dec!(0.35),
-        dec!(0.36),
-        dec!(0.38),
-        dec!(0.42),
-        dec!(0.48),
-    ];
-    let entry_implied = dec!(0.36);
+    let (realized_costs, entry_implied, effective_coverage) = if Path::new(&args.db_path).exists() {
+        let conn = rusqlite::Connection::open(&args.db_path)?;
+        let query = CoverageQuery::new(&conn);
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_secs() as i64;
+        let from_ts = now.saturating_sub(86400 * 30);
+        let coverage_report = query.query_coverage(&MarketId(args.market.clone()), from_ts, now)?;
+
+        let mut stmt = conn.prepare(
+            "SELECT borrow_rate_per_hour FROM snapshots WHERE market = ?1 ORDER BY unix_ts ASC",
+        )?;
+        let rates: Vec<Decimal> = stmt
+            .query_map([&args.market], |row| {
+                let s: String = row.get(0)?;
+                Ok(s)
+            })?
+            .filter_map(|r| r.ok())
+            .filter_map(|s| s.parse::<Decimal>().ok())
+            .collect();
+
+        if rates.is_empty() {
+            println!("No historical rates found in database. Using benchmark sample vector.");
+            (
+                vec![
+                    dec!(0.30),
+                    dec!(0.32),
+                    dec!(0.35),
+                    dec!(0.36),
+                    dec!(0.38),
+                    dec!(0.42),
+                    dec!(0.48),
+                ],
+                dec!(0.36),
+                args.coverage_pct,
+            )
+        } else {
+            let entry = *rates.last().unwrap_or(&dec!(0.36));
+            // Realized cost over horizon: rate * 1000 * hours
+            let costs: Vec<Decimal> = rates
+                .into_iter()
+                .map(|r| r * dec!(1000) * args.hours)
+                .collect();
+            (
+                costs,
+                entry * dec!(1000) * args.hours,
+                coverage_report.coverage_pct,
+            )
+        }
+    } else {
+        (
+            vec![
+                dec!(0.30),
+                dec!(0.32),
+                dec!(0.35),
+                dec!(0.36),
+                dec!(0.38),
+                dec!(0.42),
+                dec!(0.48),
+            ],
+            dec!(0.36),
+            args.coverage_pct,
+        )
+    };
 
     match compute_backtest_summary(
         MarketId(args.market),
         args.hours,
         realized_costs,
         entry_implied,
-        args.coverage_pct,
+        effective_coverage,
     ) {
         Ok(summary) => {
             println!("\nRealized Carry Variance vs Entry Implied Rate:");

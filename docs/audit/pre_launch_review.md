@@ -121,7 +121,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   let report = query.query_coverage(&MarketId(market), now.saturating_sub(86400 * 30), now)?;
   ```
 
-### 12. `interlock backtest` CLI Uses Hardcoded Vector Instead of SQLite Data
+### 12. [RESOLVED] `interlock backtest` CLI Uses Hardcoded Vector Instead of SQLite Data
+- **Status:** Resolved in `crates/interlock-cli/src/cmd/backtest.rs` by querying historical snapshots, coverage, and actual borrow rates from SQLite database.
 - **File & Line:** [crates/interlock-cli/src/cmd/backtest.rs:31-39](file:///home/dell/interlock/crates/interlock-cli/src/cmd/backtest.rs#L31-L39)
 - **Why it matters:** The command accepts `--db-path` but disregards the SQLite database entirely, always computing backtests against 7 hardcoded test numbers (`vec![dec!(0.30), ...]`).
 - **Efficient One-Line Fix:**

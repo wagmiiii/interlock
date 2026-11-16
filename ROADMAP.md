@@ -196,3 +196,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #9: implement live Solana JSON-RPC getMultipleAccounts with Base64 decoding in InterlockRpcClient (added reqwest/base64 for RPC communication) | P0-02, P1-05 |
 | 2026-11-16 | wagmiiii | Fix #10: implement continuous sampling loop with graceful shutdown for snapshot logger daemon (--max-samples 0) | P0-05, P1-07 |
 | 2026-11-16 | wagmiiii | Fix #11: fix coverage calculation for unbounded queries and add rolling 30-day window in CLI report | P1-08, P1-09 |
+| 2026-11-16 | wagmiiii | Fix #12: backtest CLI queries live historical snapshots, borrow rates, and coverage from SQLite | P1-07, P1-10 |
