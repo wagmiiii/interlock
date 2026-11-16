@@ -54,12 +54,13 @@ Each item details the exact **file and line**, **why it matters in production**,
   if publish_time > now { if publish_time - now > 5 { return Err(GuardError::StalePrice); } return Ok(()); }
   ```
 
-### 5. Decimal Exponent Mismatch Between Oracle and Reference Price
+### 5. [RESOLVED] Decimal Exponent Mismatch Between Oracle and Reference Price
+- **Status:** Resolved in `programs/interlock-ix/src/checks.rs` with `normalize_exponents` and unit test `test_exponent_normalization`.
 - **File & Line:** [programs/interlock-ix/src/lib.rs:61-65](file:///home/dell/interlock/programs/interlock-ix/src/lib.rs#L61-L65) and [programs/interlock-ix/src/checks.rs:38-42](file:///home/dell/interlock/programs/interlock-ix/src/checks.rs#L38-L42)
 - **Why it matters:** `check_deviation` directly compares `p_oracle` and `p_ref` as raw `u64` values. If the Pyth oracle uses 8 decimals ($150.00 = `15_000_000_000`) and the reference DEX pool or token mint uses 6 decimals ($150.00 = `150_000_000`), the deviation check observes an artificial 100x discrepancy and permanently blocks valid trades.
 - **Efficient One-Line Fix:**
   ```rust
-  let (norm_oracle, norm_ref) = normalize_exponents(inputs.price, oracle_expo, inputs.ref_price, ref_expo)?;
+  let (norm_oracle, norm_ref) = normalize_exponents(inputs.price as u128, inputs.expo, effective_ref_price, effective_ref_expo)?;
   ```
 
 ### 6. Zero Oracle Price Evades Confidence Interval Guard

@@ -87,11 +87,13 @@ pub async fn run(args: GuardSimulateArgs) -> Result<()> {
         now: 1_000_000,
         publish_time: 999_995,
         price: p_oracle,
+        expo: -8,
         conf: 10_000,
         feed_id,
         verification_level: VerificationLevel::Full,
         account_owner_ok: true,
         ref_price: p_ref,
+        ref_expo: -8,
     };
 
     let check_res = execute_sanity_checks(&params, &inputs);

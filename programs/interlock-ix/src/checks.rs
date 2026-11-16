@@ -40,27 +40,62 @@ pub fn check_confidence(conf: u64, price: u64, max_conf_bps: u16) -> Result<(), 
     Ok(())
 }
 
+/// Normalize two prices with potentially differing decimal exponents to a common scale.
+/// Multiplies the value with the larger exponent (fewer decimals) by 10^(difference).
+pub fn normalize_exponents(
+    price_a: u128,
+    expo_a: i32,
+    price_b: u128,
+    expo_b: i32,
+) -> Result<(u128, u128), GuardError> {
+    if expo_a == expo_b {
+        return Ok((price_a, price_b));
+    }
+    if expo_a < expo_b {
+        let diff = (expo_b - expo_a) as u32;
+        if diff > 18 {
+            return Err(GuardError::MathOverflow);
+        }
+        let mult = 10u128.checked_pow(diff).ok_or(GuardError::MathOverflow)?;
+        let scaled_b = price_b.checked_mul(mult).ok_or(GuardError::MathOverflow)?;
+        Ok((price_a, scaled_b))
+    } else {
+        let diff = (expo_a - expo_b) as u32;
+        if diff > 18 {
+            return Err(GuardError::MathOverflow);
+        }
+        let mult = 10u128.checked_pow(diff).ok_or(GuardError::MathOverflow)?;
+        let scaled_a = price_a.checked_mul(mult).ok_or(GuardError::MathOverflow)?;
+        Ok((scaled_a, price_b))
+    }
+}
+
 /// Verify deviation between primary oracle and independent reference price.
 ///
 /// Formula: fail if `|p_oracle - p_ref| * 10_000 > max_deviation_bps * p_ref`
 pub fn check_deviation(
-    p_oracle: u64,
-    p_ref: u64,
+    p_oracle: u128,
+    p_ref: u128,
     max_deviation_bps: u16,
 ) -> Result<u16, GuardError> {
     if p_ref == 0 {
         return Err(GuardError::ReferenceInvalid);
     }
 
-    let diff = (p_oracle as i128)
-        .checked_sub(p_ref as i128)
-        .ok_or(GuardError::MathOverflow)?
-        .unsigned_abs();
+    let diff = if p_oracle > p_ref {
+        p_oracle
+            .checked_sub(p_ref)
+            .ok_or(GuardError::MathOverflow)?
+    } else {
+        p_ref
+            .checked_sub(p_oracle)
+            .ok_or(GuardError::MathOverflow)?
+    };
 
     let diff_scaled = diff.checked_mul(10_000).ok_or(GuardError::MathOverflow)?;
 
     let threshold = (max_deviation_bps as u128)
-        .checked_mul(p_ref as u128)
+        .checked_mul(p_ref)
         .ok_or(GuardError::MathOverflow)?;
 
     if diff_scaled > threshold {
@@ -68,6 +103,6 @@ pub fn check_deviation(
     }
 
     // Measured deviation in basis points
-    let measured_bps = (diff_scaled / (p_ref as u128)) as u16;
+    let measured_bps = (diff_scaled / p_ref) as u16;
     Ok(measured_bps)
 }

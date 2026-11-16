@@ -189,3 +189,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #2: configure dedicated Base58 program ID in Anchor.toml and interlock-ix with format validation test | P2-01 |
 | 2026-11-16 | wagmiiii | Fix #3: add pre-flight SOL balance checks (>= 1.5 SOL) to deploy_mainnet.sh and deploy_devnet.sh | P0-10, P3-04, P3-05 |
 | 2026-11-16 | wagmiiii | Fix #4: bound future oracle timestamps to max 5s clock drift to prevent permanent staleness bypass | P2-02, R-05 |
+| 2026-11-16 | wagmiiii | Fix #5: normalize price exponents before deviation comparison in interlock-ix | P2-04, R-08 |

@@ -2,7 +2,7 @@ pub mod checks;
 pub mod errors;
 pub mod reference;
 
-pub use checks::{check_age, check_confidence, check_deviation};
+pub use checks::{check_age, check_confidence, check_deviation, normalize_exponents};
 pub use errors::GuardError;
 pub use reference::{ReferenceKind, ReferencePrice};
 
@@ -33,11 +33,13 @@ pub struct OracleCheckInputs {
     pub now: u64,
     pub publish_time: u64,
     pub price: u64,
+    pub expo: i32,
     pub conf: u64,
     pub feed_id: [u8; 32],
     pub verification_level: VerificationLevel,
     pub account_owner_ok: bool,
     pub ref_price: u64,
+    pub ref_expo: i32,
 }
 
 /// Pure validation helper invoked by the Anchor instruction handler.
@@ -57,20 +59,34 @@ pub fn execute_sanity_checks(
     check_age(inputs.now, inputs.publish_time, params.max_age_secs)?;
     check_confidence(inputs.conf, inputs.price, params.max_conf_bps)?;
 
-    let effective_ref_price = if params.reference_invert {
+    let (effective_ref_price, effective_ref_expo) = if params.reference_invert {
         if inputs.ref_price == 0 {
             return Err(GuardError::ReferenceInvalid);
         }
-        let scaled_one = 10_000_000_000_000_000u128; // 10^16 scaling (1.0 with 8 decimals squared)
+        let power = 8i32
+            .checked_sub(inputs.ref_expo)
+            .ok_or(GuardError::MathOverflow)?;
+        if !(0..=30).contains(&power) {
+            return Err(GuardError::MathOverflow);
+        }
+        let scaled_one = 10u128
+            .checked_pow(power as u32)
+            .ok_or(GuardError::MathOverflow)?;
         let inverted = scaled_one
             .checked_div(inputs.ref_price as u128)
             .ok_or(GuardError::MathOverflow)?;
-        u64::try_from(inverted).map_err(|_| GuardError::MathOverflow)?
+        (inverted, -8)
     } else {
-        inputs.ref_price
+        (inputs.ref_price as u128, inputs.ref_expo)
     };
 
-    let measured_bps =
-        check_deviation(inputs.price, effective_ref_price, params.max_deviation_bps)?;
+    let (norm_oracle, norm_ref) = normalize_exponents(
+        inputs.price as u128,
+        inputs.expo,
+        effective_ref_price,
+        effective_ref_expo,
+    )?;
+
+    let measured_bps = check_deviation(norm_oracle, norm_ref, params.max_deviation_bps)?;
     Ok(measured_bps)
 }

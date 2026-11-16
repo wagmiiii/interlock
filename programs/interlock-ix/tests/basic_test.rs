@@ -93,11 +93,13 @@ fn test_execute_sanity_checks_all_error_paths() {
         now: 1_000_000,
         publish_time: 999_990, // 10s age
         price: 150_000_000,
+        expo: -8,
         conf: 100_000, // ~6.6 bps
         feed_id,
         verification_level: VerificationLevel::Full,
         account_owner_ok: true,
         ref_price: 150_200_000, // ~13 bps deviation
+        ref_expo: -8,
     };
 
     // 1. Pass path
@@ -164,11 +166,13 @@ fn test_inverted_reference_orientation() {
         now: 1000,
         publish_time: 995,
         price: 15_000_000_000, // $150.00 in 8-decimal fixed-point
+        expo: -8,
         conf: 10_000,
         feed_id,
         verification_level: VerificationLevel::Full,
         account_owner_ok: true,
         ref_price: 666_666, // 10^16 / 666_666 = 15_000_015_000 (within 1 bps)
+        ref_expo: -8,
     };
 
     let res_ok = execute_sanity_checks(&params_inverted, &inputs_ok);
@@ -179,6 +183,39 @@ fn test_inverted_reference_orientation() {
     inputs_bad.ref_price = 500_000;
     let res_fail = execute_sanity_checks(&params_inverted, &inputs_bad);
     assert_eq!(res_fail.unwrap_err(), GuardError::DeviationExceeded);
+}
+
+#[test]
+fn test_exponent_normalization() {
+    let feed_id = [1u8; 32];
+    let params = OracleGuardParams {
+        feed_id,
+        max_age_secs: 30,
+        max_conf_bps: 100,
+        max_deviation_bps: 50, // 0.5%
+        reference_kind: ReferenceKind::DexPool,
+        reference_invert: false,
+    };
+
+    // Pyth oracle has expo -8 ($150.00 = 15_000_000_000)
+    // Reference DEX pool has expo -6 ($150.00 = 150_000_000)
+    // Normalization should scale reference by 10^2, matching exactly (0 bps deviation)
+    let inputs_mismatch = OracleCheckInputs {
+        now: 1_000_000,
+        publish_time: 999_995,
+        price: 15_000_000_000,
+        expo: -8,
+        conf: 1_000,
+        feed_id,
+        verification_level: VerificationLevel::Full,
+        account_owner_ok: true,
+        ref_price: 150_000_000,
+        ref_expo: -6,
+    };
+
+    let res = execute_sanity_checks(&params, &inputs_mismatch);
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap(), 0);
 }
 
 proptest! {
@@ -193,7 +230,7 @@ proptest! {
         let p_oracle_i128 = (p_ref as i128) + delta;
         if p_oracle_i128 > 0 && p_oracle_i128 <= (u64::MAX as i128) {
             let p_oracle = p_oracle_i128 as u64;
-            let result = check_deviation(p_oracle, p_ref, max_bps);
+            let result = check_deviation(p_oracle as u128, p_ref as u128, max_bps);
 
             let expected_abs_diff = ((p_oracle as i128) - (p_ref as i128)).unsigned_abs();
             let expected_diff_scaled = expected_abs_diff * 10_000;
