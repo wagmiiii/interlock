@@ -139,7 +139,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   let impact_bps = impact.base_impact_bps + (size_usd / dec!(1_000_000)) * impact.slope_bps_per_million;
   ```
 
-### 14. API Binary Has No Running HTTP Server
+### 14. [RESOLVED] API Binary Has No Running HTTP Server
+- **Status:** Resolved in `crates/interlock-api/src/main.rs` and `routes.rs` by binding a real Axum HTTP server to `0.0.0.0:${PORT:-8080}` serving `/health`, `/cost`, `/backtest`, and `/scenario/:id`.
 - **File & Line:** [crates/interlock-api/src/main.rs:6-10](file:///home/dell/interlock/crates/interlock-api/src/main.rs#L6-L10)
 - **Why it matters:** `interlock-api` defines endpoint handlers in `routes.rs` but `main.rs` terminates immediately after printing a stub message, preventing deployment as a live web service.
 - **Efficient One-Line Fix:**

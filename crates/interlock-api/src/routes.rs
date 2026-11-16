@@ -1,3 +1,10 @@
+use axum::{
+    extract::{Path, Query},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post},
+    Json, Router,
+};
 use interlock_core::{
     calculate_cost, BacktestSummary, CostBreakdown, CostError, MarketId, PositionInput, VenueParams,
 };
@@ -5,6 +12,54 @@ use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+#[derive(Deserialize)]
+pub struct BacktestQuery {
+    #[serde(default = "default_market")]
+    pub market: String,
+    #[serde(default = "default_hours")]
+    pub hours: Decimal,
+}
+
+fn default_market() -> String {
+    "SOL-PERP".to_string()
+}
+
+fn default_hours() -> Decimal {
+    dec!(72)
+}
+
+pub fn create_router() -> Router {
+    Router::new()
+        .route("/health", get(health_handler))
+        .route("/cost", post(cost_handler))
+        .route("/backtest", get(backtest_handler))
+        .route("/scenario/{id}", get(scenario_handler))
+}
+
+async fn health_handler() -> impl IntoResponse {
+    Json(handle_health())
+}
+
+async fn cost_handler(
+    Json(input): Json<PositionInput>,
+) -> Result<Json<ApiResponse<CostBreakdown>>, (StatusCode, String)> {
+    handle_cost(input)
+        .map(Json)
+        .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))
+}
+
+async fn backtest_handler(Query(query): Query<BacktestQuery>) -> impl IntoResponse {
+    Json(handle_backtest(query.market, query.hours))
+}
+
+async fn scenario_handler(
+    Path(id): Path<String>,
+) -> Result<Json<ApiResponse<ScenarioResponse>>, (StatusCode, String)> {
+    handle_scenario(&id)
+        .map(Json)
+        .map_err(|e| (StatusCode::NOT_FOUND, e.to_string()))
+}
 
 #[derive(Debug, Error)]
 pub enum ApiError {
