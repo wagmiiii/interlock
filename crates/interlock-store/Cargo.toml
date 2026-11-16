@@ -1,0 +1,11 @@
+[package]
+name = "interlock-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+interlock-core = { workspace = true }
+rusqlite = { workspace = true }
+rust_decimal = { workspace = true }
+thiserror = { workspace = true }

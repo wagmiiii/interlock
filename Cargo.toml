@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/interlock-core",
+    "crates/interlock-chain",
+    "crates/interlock-store",
+    "crates/interlock-cli",
+    "crates/interlock-api",
+    "programs/interlock-ix",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Ademola <ademola2993k@gmail.com>"]
+
+[workspace.dependencies]
+interlock-core = { path = "crates/interlock-core" }
+interlock-chain = { path = "crates/interlock-chain" }
+interlock-store = { path = "crates/interlock-store" }
+rust_decimal = { version = "1.36", features = ["serde-with-str"] }
+rust_decimal_macros = "1.36"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+anyhow = "1.0"
+tokio = { version = "1.43", features = ["full"] }
+clap = { version = "4.5", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+rusqlite = { version = "0.32", features = ["bundled"] }
+proptest = "1.6"

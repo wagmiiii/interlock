@@ -1,0 +1,12 @@
+{
+  "scenario_id": "b_spike_synthetic",
+  "name": "Synthetic Oracle Price Spike (Guarded Revert)",
+  "synthetic": true,
+  "market": "SOL-PERP",
+  "oracle_price": "172.50",
+  "reference_price": "150.00",
+  "deviation_bps": 1500,
+  "max_deviation_bps": 50,
+  "expected_guard_result": "REVERT",
+  "expected_error": "DeviationExceeded"
+}
