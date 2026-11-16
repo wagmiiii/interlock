@@ -20,5 +20,14 @@ if [ -z "$KEYPAIR_PATH" ]; then
     exit 1
 fi
 
+if command -v solana >/dev/null 2>&1; then
+    echo "Performing pre-flight deployer SOL balance check..."
+    BALANCE=$(solana balance "$KEYPAIR_PATH" --url mainnet-beta 2>/dev/null | awk '{print $1}' || echo "0")
+    if [ -n "$BALANCE" ] && [ "$BALANCE" != "0" ]; then
+        echo "Deployer balance: $BALANCE SOL"
+        awk -v b="$BALANCE" 'BEGIN {if (b < 1.5) {print "Error: Insufficient deployer SOL (" b " SOL). Minimum 1.5 SOL required to fund program buffer."; exit 1}}'
+    fi
+fi
+
 echo "Deploying to Solana Mainnet-Beta..."
 # anchor deploy --provider.cluster mainnet --provider.wallet "$KEYPAIR_PATH"

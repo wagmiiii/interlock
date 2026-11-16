@@ -36,7 +36,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   interlock_ix = "<REAL_GENERATED_PROGRAM_PUBKEY_FROM_KEYPAIR>"
   ```
 
-### 3. Deploy Scripts Lack Balance Pre-flight Checks (Risk of Stuck Buffers)
+### 3. [RESOLVED] Deploy Scripts Lack Balance Pre-flight Checks (Risk of Stuck Buffers)
+- **Status:** Resolved in `scripts/deploy_mainnet.sh` and `scripts/deploy_devnet.sh` with automated balance checks enforcing >= 1.5 SOL.
 - **File & Line:** [scripts/deploy_mainnet.sh:23-24](file:///home/dell/interlock/scripts/deploy_mainnet.sh#L23-L24) and [scripts/deploy_devnet.sh:13-14](file:///home/dell/interlock/scripts/deploy_devnet.sh#L13-L14)
 - **Why it matters:** Solana program deployment requires allocating an on-chain program buffer (~1.2 - 1.5 SOL for rent exemption). Deploying with insufficient SOL fails mid-upload, burning transaction fees and leaving orphaned buffer accounts on mainnet.
 - **Efficient One-Line Fix:**

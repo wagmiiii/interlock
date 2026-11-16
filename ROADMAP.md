@@ -1,6 +1,6 @@
 # Interlock: Roadmap
 
-**Last updated:** 2026-11-16 (UTC) by wagmiiii: resolved Audit Fix #2 (Configured dedicated non-system program ID in Anchor.toml and interlock-ix) [P2-01].
+**Last updated:** 2026-11-16 (UTC) by wagmiiii: resolved Audit Fix #3 (Added pre-flight SOL balance checks in deploy scripts) [P0-10, P3-04, P3-05].
 **Hackathon deadline:** 2026-12-05 (timezone [UNVERIFIED]). **Internal submission target:** 2026-12-04.
 **Status legend:** `[ ]` not started | `[~]` in progress | `[x]` done | `[!]` blocked (reason in the Blocked section)
 **Priority legend:** P0 must ship | P1 should ship | P2 stretch (excluded from the 100% readiness definition)
@@ -187,3 +187,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Conduct senior engineering pre-launch security & stability review; compile ranked audit report in docs/audit/pre_launch_review.md | P5-05, R-08 |
 | 2026-11-16 | wagmiiii | Fix #1: enforce strict price update ordering before guard in TransactionComposer and add unit test | P2-06, R-08 |
 | 2026-11-16 | wagmiiii | Fix #2: configure dedicated Base58 program ID in Anchor.toml and interlock-ix with format validation test | P2-01 |
+| 2026-11-16 | wagmiiii | Fix #3: add pre-flight SOL balance checks (>= 1.5 SOL) to deploy_mainnet.sh and deploy_devnet.sh | P0-10, P3-04, P3-05 |
