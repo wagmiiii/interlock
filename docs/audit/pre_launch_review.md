@@ -148,7 +148,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   axum::serve(tokio::net::TcpListener::bind("0.0.0.0:8080").await?, create_router()).await?;
   ```
 
-### 15. Unbounded In-Memory Timestamp Allocation in SQLite Coverage Query
+### 15. [RESOLVED] Unbounded In-Memory Timestamp Allocation in SQLite Coverage Query
+- **Status:** Resolved in `crates/interlock-store/src/coverage.rs` with streaming cursor processing maintaining O(1) memory complexity during gap analysis and coverage aggregation.
 - **File & Line:** [crates/interlock-store/src/coverage.rs:24-27](file:///home/dell/interlock/crates/interlock-store/src/coverage.rs#L24-L27)
 - **Why it matters:** `SELECT unix_ts` loads all matching timestamps into an in-memory `Vec<i64>`. After months of high-frequency logging, this query will exhaust available memory and OOM edge nodes.
 - **Efficient One-Line Fix:**
