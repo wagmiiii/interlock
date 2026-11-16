@@ -1,6 +1,6 @@
 # Interlock: Roadmap
 
-**Last updated:** 2026-11-16 (UTC) by wagmiiii: scaffolded repository structure, data models, and justfile (P0-03)
+**Last updated:** 2026-11-16 (UTC) by wagmiiii: completed pre-commit secret scan (P0-12) and interlock-core cost models & tests (P1-01)
 **Hackathon deadline:** 2026-12-05 (timezone [UNVERIFIED]). **Internal submission target:** 2026-12-04.
 **Status legend:** `[ ]` not started | `[~]` in progress | `[x]` done | `[!]` blocked (reason in the Blocked section)
 **Priority legend:** P0 must ship | P1 should ship | P2 stretch (excluded from the 100% readiness definition)
@@ -24,16 +24,16 @@
 
 | Phase | Window (2026) | Total | Done | % |
 |-------|---------------|-------|------|---|
-| 0. Foundations and gates | Nov 16 to 18 | 12 | 2 | 17% |
-| 1. Cost engine and logger | Nov 19 to 25 | 10 | 0 | 0% |
+| 0. Foundations and gates | Nov 16 to 18 | 12 | 3 | 25% |
+| 1. Cost engine and logger | Nov 19 to 25 | 10 | 1 | 10% |
 | 2. Guard program | Nov 24 to 30 | 9 | 0 | 0% |
 | 3. Integration, demo, mainnet | Nov 29 to Dec 2 | 7 | 0 | 0% |
 | 4. API and web | Dec 1 to 3 | 6 | 0 | 0% |
 | 5. Submission | Dec 3 to 4 | 6 | 0 | 0% |
 | R. Risk-derived tasks | ongoing | 8 | 0 | 0% |
-| **All tasks** | | **58** | **2** | **3%** |
+| **All tasks** | | **58** | **4** | **7%** |
 
-**100% readiness** means every P0 and P1 task is done (56 tasks; the 2 P2 tasks are excluded). Current readiness: 2 of 56 (4%).
+**100% readiness** means every P0 and P1 task is done (56 tasks; the 2 P2 tasks are excluded). Current readiness: 4 of 56 (7%).
 
 ## 2. Schedule at a glance
 
@@ -64,7 +64,7 @@ Checkpoint rule: if Phase 1 is not P0-complete by Nov 26, cut Phase 4 to precomp
 | P0-09 | Confirm Pyth feed ids for target markets and the price-update posting approach | P0 | P0-04 | Feed ids and method recorded in `docs/verification/pyth.md` | [ ] |
 | P0-10 | Estimate mainnet deploy cost; create a dedicated deploy keypair outside the repo; fund minimally | P0 | P0-04 | Estimate recorded; keypair path never committed; balance checked | [ ] |
 | P0-11 | CI baseline (fmt, clippy, tests, `anchor build`) | P1 | P0-03 | Workflow green on an empty skeleton | [ ] |
-| P0-12 | Pre-commit secret scan | P0 | P0-03 | Committing a fake key string is blocked locally | [ ] |
+| P0-12 | Pre-commit secret scan | P0 | P0-03 | Committing a fake key string is blocked locally | [x] |
 
 **Gate outcomes drive the plan.** If G1 shows no atomic path on any usable venue, the guard becomes advisory for that venue: record it in ADR-004, rewrite the PRD guard claim and the pitch before continuing.
 
@@ -72,7 +72,7 @@ Checkpoint rule: if Phase 1 is not P0-complete by Nov 26, cut Phase 4 to precomp
 
 | ID | Task | Pri | Depends | Acceptance | Status |
 |----|------|-----|---------|------------|--------|
-| P1-01 | `interlock-core`: types and cost model with `Decimal`, unit tests | P0 | P0-08 | Tests cover fee math, zero and fractional hours, leverage bounds | [ ] |
+| P1-01 | `interlock-core`: types and cost model with `Decimal`, unit tests | P0 | P0-08 | Tests cover fee math, zero and fractional hours, leverage bounds | [x] |
 | P1-02 | `interlock-chain`: slot-consistent RPC wrapper; decoders for venue accounts and Pyth, with fixtures | P0 | P0-06, P0-08, P0-09 | Decoders pass on committed fixtures; unknown layout returns a named error | [ ] |
 | P1-03 | `interlock cost` CLI command end to end | P0 | P1-01, P1-02 | PRD F1 first acceptance bullet met; prints slot, assumptions, unverified inputs | [ ] |
 | P1-04 | Golden tests against venue quotes (at least 5 positions) | P0 | P1-03 | Total cost within 1% relative or $0.05 absolute, or gaps documented | [ ] |
@@ -201,6 +201,7 @@ Every item must be true:
 
 | Date (UTC) | Contributor | Summary | Tasks |
 |------------|-------------|---------|-------|
+| 2026-11-16 | wagmiiii | Implemented pre-commit secret scan hook blocking private keys locally (P0-12); built comprehensive unit and proptest suite for interlock-core covering fee math, zero/fractional hours, leverage bounds, and coverage refusal (P1-01). | P0-12, P1-01 |
 | 2026-11-16 | wagmiiii | Scaffolding complete: directory tree per project_structure.md, core data models (interlock-core), RPC & decoder stubs (interlock-chain), store schema & writer (interlock-store), CLI commands (interlock-cli), API stubs (interlock-api), guard checks (interlock-ix), web app skeleton, scenarios A & B, justfile, .env.example, CI. just check passes. | P0-03 |
 | 2026-11-16 | Claude (for Ademola) | Renamed project from PerpGuard to Interlock across documentation; updated crate/program identifiers (interlock-core, interlock-chain, interlock-store, interlock-cli, interlock-api, interlock-ix) and defined Interlock concept. | P0-01 |
 | 2026-11-16 | Claude (for Ademola) | Created planning doc set: PRD, ARCHITECTURE, ARCHITECTURE_ESSENTIALS, project_structure, AGENTS, CLAUDE, ROADMAP. Added hard-question sections. | P0-01 |
