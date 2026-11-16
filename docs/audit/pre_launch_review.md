@@ -76,7 +76,8 @@ Each item details the exact **file and line**, **why it matters in production**,
 
 ## Tier 2: Production Stability & Runtime Failures
 
-### 7. Negative Exponent Integer Overflow Panic in Pyth Decoder
+### 7. [RESOLVED] Negative Exponent Integer Overflow Panic in Pyth Decoder
+- **Status:** Resolved in `crates/interlock-chain/src/pyth.rs` with safe bounded exponent scaling and unit tests in `crates/interlock-chain/tests/decoder_tests.rs`.
 - **File & Line:** [crates/interlock-chain/src/pyth.rs:50](file:///home/dell/interlock/crates/interlock-chain/src/pyth.rs#L50)
 - **Why it matters:** `10_i64.pow((-record.expo) as u32)` casts `-record.expo` to `u32`. If `record.expo` is positive (or `< -18`), casting a negative number causes integer wraparound to `4294967294`, causing an instant fatal process panic via exponent overflow.
 - **Efficient One-Line Fix:**

@@ -47,9 +47,25 @@ impl PythReader {
             .parse::<u64>()
             .map_err(|e| PythError::ParseError(e.to_string()))?;
 
-        let scale = 10_i64.pow((-record.expo) as u32);
-        let price = Decimal::from(raw_price) / Decimal::from(scale);
-        let conf = Decimal::from(raw_conf) / Decimal::from(scale);
+        let expo_u32 = record.expo.unsigned_abs();
+        if expo_u32 > 18 {
+            return Err(PythError::ParseError("Exponent out of range".to_string()));
+        }
+        let scale = 10_u64
+            .checked_pow(expo_u32)
+            .ok_or_else(|| PythError::ParseError("Exponent scale overflow".to_string()))?;
+
+        let (price, conf) = if record.expo < 0 {
+            (
+                Decimal::from(raw_price) / Decimal::from(scale),
+                Decimal::from(raw_conf) / Decimal::from(scale),
+            )
+        } else {
+            (
+                Decimal::from(raw_price) * Decimal::from(scale),
+                Decimal::from(raw_conf) * Decimal::from(scale),
+            )
+        };
 
         Ok(PythPrice {
             feed_id: record.feed_id.clone(),

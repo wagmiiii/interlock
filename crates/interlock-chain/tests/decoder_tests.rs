@@ -63,3 +63,26 @@ fn test_decode_pyth_fixture() {
     assert_eq!(pyth_price.conf, dec!(0.15000000));
     assert_eq!(pyth_price.expo, -8);
 }
+
+#[test]
+fn test_decode_pyth_positive_and_overflow_exponents() {
+    let mut record = PythFixtureRecord {
+        slot: 300_000_000,
+        feed_id: "test".to_string(),
+        price: "150".to_string(),
+        conf: "1".to_string(),
+        expo: 2, // positive exponent: 150 * 10^2 = 15000
+        publish_time: 1000,
+    };
+
+    let parsed = PythReader::parse_fixture(&record).unwrap();
+    assert_eq!(parsed.price, dec!(15000));
+    assert_eq!(parsed.conf, dec!(100));
+
+    // Exponent out of range (> 18) must return Err, not panic
+    record.expo = 99;
+    assert!(PythReader::parse_fixture(&record).is_err());
+
+    record.expo = -99;
+    assert!(PythReader::parse_fixture(&record).is_err());
+}
