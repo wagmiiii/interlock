@@ -94,7 +94,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   let open_bps = u32::from_le_bytes(raw_data.get(8..12).ok_or(DecoderError::TruncatedData(raw_data.len(), 12))?.try_into().map_err(|_| DecoderError::ParseError("slice".into()))?);
   ```
 
-### 9. RPC Batch Fetch Stub Returns Zero Accounts and Slot 0
+### 9. [RESOLVED] RPC Batch Fetch Stub Returns Zero Accounts and Slot 0
+- **Status:** Resolved in `crates/interlock-chain/src/rpc.rs` with full JSON-RPC `getMultipleAccounts` deserializer and Base64 decoding, tested in `crates/interlock-chain/tests/decoder_tests.rs`.
 - **File & Line:** [crates/interlock-chain/src/rpc.rs:46-49](file:///home/dell/interlock/crates/interlock-chain/src/rpc.rs#L46-L49)
 - **Why it matters:** `get_multiple_accounts_consistent` returns a dummy empty vector and slot 0. Any live system relying on the RPC client to fetch real-time state from Solana validators receives no data.
 - **Efficient One-Line Fix:**

@@ -193,3 +193,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #6: reject zero oracle prices in confidence check to prevent silent corruption pass | P2-03, R-05 |
 | 2026-11-16 | wagmiiii | Fix #7: safe bounded exponent parsing in Pyth decoder avoiding integer overflow panics | P0-04, P1-03 |
 | 2026-11-16 | wagmiiii | Fix #8: eliminate all unwrap calls in venue binary decoder, returning typed DecoderErrors | P0-04, P1-04 |
+| 2026-11-16 | wagmiiii | Fix #9: implement live Solana JSON-RPC getMultipleAccounts with Base64 decoding in InterlockRpcClient (added reqwest/base64 for RPC communication) | P0-02, P1-05 |

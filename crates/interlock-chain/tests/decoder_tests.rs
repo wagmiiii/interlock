@@ -86,3 +86,16 @@ fn test_decode_pyth_positive_and_overflow_exponents() {
     record.expo = -99;
     assert!(PythReader::parse_fixture(&record).is_err());
 }
+
+#[tokio::test]
+async fn test_rpc_client_error_handling() {
+    let client = interlock_chain::InterlockRpcClient::new("http://127.0.0.1:9".to_string(), None);
+    let res = client
+        .get_multiple_accounts_consistent(&["11111111111111111111111111111111".to_string()])
+        .await;
+    assert!(res.is_err());
+    assert!(matches!(
+        res.unwrap_err(),
+        interlock_chain::RpcError::Transport(_)
+    ));
+}
