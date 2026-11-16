@@ -157,7 +157,8 @@ Each item details the exact **file and line**, **why it matters in production**,
   SELECT COUNT(*), MIN(unix_ts), MAX(unix_ts) FROM snapshots WHERE market = ?1 AND unix_ts BETWEEN ?2 AND ?3;
   ```
 
-### 16. Floating-point Operation in Core Backtest Percentile Math
+### 16. [RESOLVED] Floating-point Operation in Core Backtest Percentile Math
+- **Status:** Resolved in `crates/interlock-core/src/backtest.rs` replacing float casting with exact integer arithmetic `((n * 95) / 100).min(n.saturating_sub(1))`.
 - **File & Line:** [crates/interlock-core/src/backtest.rs:44](file:///home/dell/interlock/crates/interlock-core/src/backtest.rs#L44)
 - **Why it matters:** `(n as f64 * 0.95).floor() as usize` violates the zero-float financial arithmetic standard required across `interlock-core`.
 - **Efficient One-Line Fix:**

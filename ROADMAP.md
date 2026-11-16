@@ -200,3 +200,4 @@ Dec 5      buffer
 | 2026-11-16 | wagmiiii | Fix #13: incorporate order-size price impact slope (slope_bps_per_million) for large/institutional trades | P1-01, P1-02 |
 | 2026-11-16 | wagmiiii | Fix #14: bind live Axum HTTP server in interlock-api serving /health, /cost, /backtest, and /scenario endpoints (added axum) | P4-01, P4-02, P4-03, P4-05 |
 | 2026-11-16 | wagmiiii | Fix #15: replace full in-memory vector allocation with streaming row iteration for SQLite gap analysis | P1-08, P1-09 |
+| 2026-11-16 | wagmiiii | Fix #16: replace float arithmetic with exact integer math for p95 percentile calculation in interlock-core | P1-10 |

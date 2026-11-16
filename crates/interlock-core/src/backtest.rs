@@ -41,7 +41,7 @@ pub fn compute_backtest_summary(
         (realized_costs[(n / 2) - 1] + realized_costs[n / 2]) / dec!(2)
     };
 
-    let p95_idx = ((n as f64 * 0.95).floor() as usize).min(n - 1);
+    let p95_idx = ((n * 95) / 100).min(n.saturating_sub(1));
     let p95 = realized_costs[p95_idx];
 
     Ok(BacktestSummary {
